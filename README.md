@@ -132,10 +132,10 @@ The four built in shaders are `lines` (the default), `balls`, `plasma`, and
 
 ### plasma
 
-<img src="docs/shots/plasma1.png" width="290" height="163" hspace="10" alt="plasma effect"><img src="docs/shots/plasma2.png" width="290" height="163" hspace="20" alt="plasma effect">
+<img src="docs/shots/plasma1.png" width="290" height="163" hspace="10" alt="plasma effect">
 
 ### starfield
 
-<img src="docs/shots/starfield1.png" width="290" height="163" hspace="10" alt="starfield effect"><img src="docs/shots/starfield2.png" width="290" height="163" hspace="20" alt="starfield effect">
+<img src="docs/shots/starfield1.png" width="290" height="163" hspace="10" alt="starfield effect">
 
 Regenerate these with `make shots` (renders each shader to `docs/shots/`).
