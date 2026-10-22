@@ -9,8 +9,8 @@ DEBUG     = target/debug/$(BIN)
 # Idle timeout (seconds) used by the `watch` / `run` targets.
 IDLE     ?= 300
 
-# Optional WGSL shader file. Empty = bundled default effect.
-#   make run SHADER=shaders/plasma.wgsl
+# Optional bundled name, WGSL file path, or random. Empty = bundled default effect.
+#   make run SHADER=random
 SHADER   ?=
 SHADER_ARG = $(if $(SHADER),--shader $(SHADER),)
 
@@ -107,7 +107,7 @@ ci: fmt-check build test clippy ci-shots
 clippy:
 	$(CARGO) clippy --all-targets $(CLIPPY_FLAGS)
 
-## install: build + install and enable the service (IDLE=<secs>, SHADER=<path>)
+## install: build + install and enable the service (IDLE=<secs>, SHADER=<name|path|random>)
 .PHONY: install
 install: build
 	mkdir -p $(UNIT_DIR)

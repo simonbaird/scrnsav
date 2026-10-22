@@ -13,8 +13,8 @@
   pointer position. Keep the `Uniforms` size test in step with any additions.
 
 ## Daemon / behaviour
-- **Random / cycle mode.** Daemon picks a random (or rotating) shader each time it
-  fires.
+- **Cycle mode.** Rotate through bundled shaders each time the daemon fires
+  (random selection is available via `--shader random`).
 - **Robust watch-mode errors.** Detect when the spawned `show` exits non-zero (bad
   shader, GPU init failure) and log the reason / fall back to the default, instead
   of just relaunching.

@@ -49,11 +49,17 @@ pub fn bundled_names() -> impl Iterator<Item = &'static str> {
 }
 
 /// Resolve the `--shader` argument to WGSL source. `None` → the default
-/// (first bundled) effect; a value that exactly matches a bundled name → that
-/// bundled source; anything else → read as a file path on disk.
+/// (first bundled) effect; `random` → a random bundled effect; a bundled name
+/// → that bundled source; anything else → read as a file path on disk.
 fn resolve_shader(shader: Option<&str>) -> anyhow::Result<String> {
     match shader {
         None => Ok(BUNDLED[0].1.to_string()),
+        Some("random") => {
+            let index = (random_bits() % BUNDLED.len() as u64) as usize;
+            let (name, src) = BUNDLED[index];
+            log::info!("random shader: {name}");
+            Ok(src.to_string())
+        }
         Some(name) => match BUNDLED.iter().find(|(n, _)| *n == name) {
             Some((_, src)) => Ok((*src).to_string()),
             None => std::fs::read_to_string(name).with_context(|| {
@@ -243,15 +249,19 @@ fn make_pipeline(
     })
 }
 
-/// A pseudo-random phase offset for one-off shots, in the same range as
-/// [`monitor_seed`]. Uses `RandomState`'s per-call random keys, so each run
-/// (and each rerun) picks a different variation of the effect.
-fn random_seed() -> f32 {
+/// Pseudo-random bits from `RandomState`'s per-call random keys, for effect
+/// selection and phase offsets (not cryptographic use).
+fn random_bits() -> u64 {
     use std::hash::{BuildHasher, Hasher};
-    let bits = std::collections::hash_map::RandomState::new()
+    std::collections::hash_map::RandomState::new()
         .build_hasher()
-        .finish();
-    (bits % 100_000) as f32 / 100_000.0 * std::f32::consts::TAU * 8.0
+        .finish()
+}
+
+/// A pseudo-random phase offset for one-off shots, in the same range as
+/// [`monitor_seed`].
+fn random_seed() -> f32 {
+    (random_bits() % 100_000) as f32 / 100_000.0 * std::f32::consts::TAU * 8.0
 }
 
 /// Build the per-monitor surface, choosing its own preferred format so each
@@ -489,8 +499,8 @@ impl ApplicationHandler for App {
     }
 }
 
-/// Run the saver. `shader` is a bundled name or a WGSL file path (see
-/// [`resolve_shader`]); when `None`, the default bundled effect is used.
+/// Run the saver. `shader` is a bundled name, `random`, or a WGSL file path
+/// (see [`resolve_shader`]); when `None`, the default bundled effect is used.
 /// `dismiss` selects how it exits.
 pub fn run(shader: Option<String>, dismiss: DismissMode) -> anyhow::Result<()> {
     let shader_src = resolve_shader(shader.as_deref())?;
@@ -511,11 +521,11 @@ pub fn run(shader: Option<String>, dismiss: DismissMode) -> anyhow::Result<()> {
 
 /// Render a single frame of `shader` to a PNG at `out`, headlessly — no window
 /// or surface, so it works without a display (e.g. in CI for README images).
-/// `shader` is a bundled name or a WGSL file path (see [`resolve_shader`]), or
-/// the bundled default when `None`. `time` picks the moment in the effect's
-/// animation to capture (effects are deterministic in `time`). `seed` is the
-/// per-shader phase offset; `None` picks a random one each run (logged, so a
-/// favourite can be pinned with `--seed`).
+/// `shader` is a bundled name, `random`, or a WGSL file path (see
+/// [`resolve_shader`]), or the bundled default when `None`. `time` picks the
+/// moment in the effect's animation to capture (effects are deterministic in
+/// `time`). `seed` is the per-shader phase offset; `None` picks a random one each
+/// run (logged, so a favourite can be pinned with `--seed`).
 pub fn shot(
     shader: Option<String>,
     out: &str,
@@ -710,6 +720,12 @@ mod tests {
     fn uniforms_match_wgsl_layout() {
         // Must stay 16 bytes to match `struct Uniforms` in the WGSL shaders.
         assert_eq!(std::mem::size_of::<Uniforms>(), 16);
+    }
+
+    #[test]
+    fn resolve_shader_picks_random_bundled() {
+        let source = super::resolve_shader(Some("random")).unwrap();
+        assert!(super::BUNDLED.iter().any(|(_, src)| *src == source));
     }
 
     #[test]

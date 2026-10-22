@@ -50,14 +50,24 @@ cargo build --release
 # --shader also takes a path to your own .wgsl file:
 ./target/release/scrnsav show --shader ./my-effect.wgsl
 
+# Pick a random bundled effect:
+./target/release/scrnsav show --shader random
+
 # Run the idle daemon (fires after 300s; pass seconds to override).
 # --shader is forwarded to each saver it launches:
 ./target/release/scrnsav watch 300
 ./target/release/scrnsav watch 60 --shader plasma
+./target/release/scrnsav watch 60 --shader random  # choose anew each idle period
 RUST_LOG=info ./target/release/scrnsav watch 60   # with logging
 ```
 
-With `make`, pass `SHADER=`: `make run SHADER=shaders/plasma.wgsl`.
+With `make`, pass `SHADER=`: `make run SHADER=shaders/plasma.wgsl` or
+`make watch IDLE=60 SHADER=random`.
+
+`--shader random` chooses from the bundled effects once per saver launch (the
+same effect on all monitors). Consecutive choices may repeat; it doesn't switch
+effects while running. It also works with `shot`. Use `RUST_LOG=info` to log the
+chosen name. Omitting `--shader` still uses `lines`.
 
 ## Important: stop GNOME from blanking first
 
@@ -108,8 +118,9 @@ different variation on each screen — fold it into your math to make use of it)
 
 To use your own effect, write a `.wgsl` file with `vs_main`/`fs_main` entry
 points (copy `plasma.wgsl` as a starting point) and pass its path with
-`--shader PATH` — no rebuild needed. A bundled name always wins over a file of
-the same bare name, so use a path (e.g. `./plasma.wgsl`) to run a local copy.
+`--shader PATH` — no rebuild needed. Bundled names and the special value `random`
+always win over a file of the same bare name, so use a path (e.g.
+`./plasma.wgsl`) to run a local copy.
 The bundled effects are compiled in, so `scrnsav show` always works with no
 arguments.
 

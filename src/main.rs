@@ -7,7 +7,7 @@ use anyhow::Context;
 struct Opts {
     /// Idle timeout in seconds (first bare number), used by `watch`.
     secs: Option<u64>,
-    /// Bundled effect name or WGSL file path (`--shader NAME|PATH`).
+    /// Bundled effect name, `random`, or WGSL file path (`--shader NAME|PATH|random`).
     shader: Option<String>,
     /// Internal: set by the idle daemon on the `show` it spawns, so the saver
     /// dismisses on any input rather than Escape-only.
@@ -160,13 +160,14 @@ fn print_help() {
         "scrnsav — a Wayland/GNOME screensaver\n\
          \n\
          USAGE:\n\
-         \u{20}   scrnsav show  [--shader NAME|PATH]         Run the saver now (Esc to exit)\n\
-         \u{20}   scrnsav watch [secs] [--shader NAME|PATH]  Watch for idle, then launch the saver\n\
-         \u{20}   scrnsav shot  [--shader NAME|PATH] [--out PATH] [--size WxH] [--time SECS] [--seed F]\n\
-         \u{20}                                             Render one frame to a PNG (headless)\n\
-         \u{20}   scrnsav list                              List the bundled effect names\n\
+         \u{20}   scrnsav show  [--shader NAME|PATH|random]         Run the saver now (Esc to exit)\n\
+         \u{20}   scrnsav watch [secs] [--shader NAME|PATH|random]  Watch for idle, then launch the saver\n\
+         \u{20}   scrnsav shot  [--shader NAME|PATH|random] [--out PATH] [--size WxH] [--time SECS] [--seed F]\n\
+         \u{20}                                                    Render one frame to a PNG (headless)\n\
+         \u{20}   scrnsav list                                     List the bundled effect names\n\
          \n\
-         --shader takes a bundled name (see `list`) or a path to a .wgsl file.\n\
+         --shader takes a bundled name (see `list`), a path to a .wgsl file,\n\
+         or `random` to pick a bundled effect on each launch (repeats possible).\n\
          Without it, the default bundled effect is used. Default idle is 300s.\n\
          shot defaults: --out shot.png --size 1920x1080 --time 10, random --seed.\n"
     );
