@@ -40,6 +40,7 @@ const BUNDLED: &[(&str, &str)] = &[
     ("lines", include_str!("../shaders/lines.wgsl")),
     ("balls", include_str!("../shaders/balls.wgsl")),
     ("plasma", include_str!("../shaders/plasma.wgsl")),
+    ("starfield", include_str!("../shaders/starfield.wgsl")),
 ];
 
 /// Names of the bundled effects, in order (first is the default).
